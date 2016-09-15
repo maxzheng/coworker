@@ -1,0 +1,5 @@
+Coworker
+=============
+
+.. automodule:: coworker
+   :members:
