@@ -48,13 +48,6 @@ To run for a list of tasks and exit when finished:
     task_futures = await worker.start(tasks)
     results = [f.result() for f in task_futures]
 
-API Documentation
-=================
-
-.. toctree::
-   :maxdepth: 2
-
-   api/coworker
 
 Links & Contact Info
 ====================
