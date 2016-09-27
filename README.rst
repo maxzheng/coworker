@@ -25,10 +25,10 @@ To run in the background forever and add tasks:
 
     import asyncio
 
-    # Start worker / Run in background
-    asyncio.ensure_future(worker.start())
+    async def background_worker_example():
+        # Start worker / Run in background
+        asyncio.ensure_future(worker.start())
 
-    async def usage_example():
         # Mulitiple tasks
         tasks = list(range(100))
         results = await asyncio.gather(*worker.add_tasks(tasks))
@@ -42,7 +42,7 @@ To run in the background forever and add tasks:
         await worker.stop()
 
     # Run async usage example
-    asyncio.get_event_loop().run_until_complete(usage_example())
+    asyncio.get_event_loop().run_until_complete(background_worker_example())
 
 
 To run for a list of tasks and stop worker when finished:
