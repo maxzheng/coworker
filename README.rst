@@ -12,41 +12,45 @@ Define how a task is performed and create the worker:
 
     from coworker import Coworker
 
-    class SquareWorker(Coworker)
-        async def do_task(self, task)
+    class SquareWorker(Coworker):
+        async def do_task(self, task):
             return task * task
 
-    worker = SquareWorker()
+    worker = SquareWorker(max_concurrency=5)    # Only 5 tasks will run concurrently
+                                                # As do_task is fast, 35,000 tasks can be done in 1 second.
 
 To run in the background forever and add tasks:
 
 .. code-block:: python
 
-    # Run in background
+    import asyncio
+
+    # Start worker / Run in background
     asyncio.ensure_future(worker.start())
 
-    # Add tasks
-    tasks = list(range(100))
-    task_futures = await worker.add_tasks(tasks)
+    async def usage_example():
+        # Mulitiple tasks
+        tasks = list(range(100))
+        results = await asyncio.gather(*worker.add_tasks(tasks))
+        print(results)  # results = [0, 1, 4, 9, ...]
 
-    # Wait / get results
-    asyncio.wait(task_futures)
-    results = [f.result() for f in task_futures]
+        # Single task
+        result = await worker.add_tasks(2)
+        print(result)   # result = 4
 
-    # Do a single task
-    task = 2
-    task_future = worker.add_tasks(task)
-    result = await task_future  # result = 4
+        # Stop worker
+        await worker.stop()
 
-    # Stop worker (cancels outstanding tasks)
-    worker.stop()
+    # Run async usage example
+    asyncio.get_event_loop().run_until_complete(usage_example())
 
-To run for a list of tasks and exit when finished:
+
+To run for a list of tasks and stop worker when finished:
 
 .. code-block:: python
 
-    task_futures = await worker.start(tasks)
-    results = [f.result() for f in task_futures]
+    task_futures = asyncio.get_event_loop().run_until_complete(worker.start([1, 2, 3]))
+    print([t.result() for t in task_futures])   # [1, 4, 9]
 
 
 Links & Contact Info

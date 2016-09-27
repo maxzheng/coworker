@@ -13,6 +13,13 @@ Contents:
 
    README
 
+API Documentation
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   api/coworker
 
 Indices and tables
 ==================
