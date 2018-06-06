@@ -5,7 +5,7 @@ import setuptools
 
 setuptools.setup(
     name='coworker',
-    version='1.0.0',
+    version='1.0.2',
 
     author='Max Zheng',
     author_email='maxzheng.os @t gmail.com',
