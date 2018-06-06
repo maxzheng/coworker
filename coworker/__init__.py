@@ -42,7 +42,8 @@ class Coworker(object):
         #: all concurrent tasks are done.
         self.sliding_window = sliding_window
 
-        #: Log debug. By having this distinct flag allows for debugging when needed without polluting upstream debug logs.
+        #: Log debug. By having this distinct flag allows for debugging when needed without polluting upstream
+        #: debug logs.
         self.debug = False
 
     @property
@@ -158,8 +159,8 @@ class Coworker(object):
         Add task(s) to queue
 
         :param object|list tasks: A single or list of task(s) to add to the queue.
-        :return: If a single task is given, then returns a single task future that will contain result from :meth:`self.do_task`
-                 If a list of tasks is given, then a list of task futures, one for each task.
+        :return: If a single task is given, then returns a single task future that will contain result from
+                 :meth:`self.do_task`. If a list of tasks is given, then a list of task futures, one for each task.
 
                  Note that if hash(task) is the same as another/existing task,
                  the same future will be returned, and the task is only performed once.

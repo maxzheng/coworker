@@ -93,7 +93,7 @@ async def test_should_exit():
 
 
 @async_test
-async def test_start_tasks():
+async def test_start_tasks2():
     task_futures = await SquareWorker().start([1, 2, 3])
     responses = [f.result() for f in task_futures]
 
