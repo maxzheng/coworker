@@ -249,4 +249,4 @@ async def test_performance(sliding_window):
 
     total_time = time() - start_time
 
-    assert 0.5 < total_time < 1
+    assert 0.5 < total_time < 1.5
