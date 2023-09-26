@@ -1,5 +1,10 @@
-Version 1.0.2
+Version 1.0.3
 ================================================================================
+
+* Add exit_when_idle as constructor param
+
+Version 1.0.2
+--------------------------------------------------------------------------------
 
 * Use task id to avoid problems with unhashable data for keys
 * Increase time threshold for performance test as Github test node is slower
