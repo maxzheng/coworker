@@ -116,9 +116,9 @@ class Coworker(object):
             except asyncio.QueueEmpty:
                 break
 
-            if task in self.task_futures:  # If it is not in here, it was cancelled. See :meth:`self.cancel_task`
+            if id(task) in self.task_futures:  # If it is not in here, it was cancelled. See :meth:`self.cancel_task`
                 task_future = self._do_task(task)
-                self.task_futures[task]['do'] = asyncio.ensure_future(task_future)
+                self.task_futures[id(task)]['do'] = asyncio.ensure_future(task_future)
 
     async def _do_task(self, task):
         """ Perform the task and call :meth:`self.on_start_task` and :meth:`self.on_finish_task` """
@@ -136,12 +136,12 @@ class Coworker(object):
                 await self.on_finish_task(task, result)
 
             except Exception as e:
-                self.task_futures[task]['result'].set_exception(e)
+                self.task_futures[id(task)]['result'].set_exception(e)
 
             else:
-                self.task_futures[task]['result'].set_result(result)
+                self.task_futures[id(task)]['result'].set_result(result)
 
-            del self.task_futures[task]
+            del self.task_futures[id(task)]
 
         except KeyError:  # Task was cancelled / removed from self.task_futures by :meth:`self.cancel_task`
             pass
@@ -175,15 +175,16 @@ class Coworker(object):
         task_futures = []
 
         for task in tasks:
-            if task in self.task_futures:
-                task_futures.append(self.task_futures[task]['result'])
+            if id(task) in self.task_futures:
+                task_futures.append(self.task_futures[id(task)]['result'])
 
             else:
                 task_future = asyncio.Future()
                 task_futures.append(task_future)
 
-                self.task_futures[task] = {}  # Do not use defaultdict as that creates the task key from other places.
-                self.task_futures[task]['result'] = task_future
+                self.task_futures[id(task)] = {}    # Do not use defaultdict as that creates the task key
+                                                    # from other places.
+                self.task_futures[id(task)]['result'] = task_future
 
                 self.task_queue.put_nowait(task)
 
@@ -208,12 +209,17 @@ class Coworker(object):
 
     def cancel_task(self, task):
         """ Cancel a task """
-        if task in self.task_futures:
-            for task_future in self.task_futures[task].values():
-                task_future.cancel()
+        task_ids = [id(task)]
+        if isinstance(task, int):
+            task_ids.append(task)  # Allows tasks to be cancelled by ID
 
-            # No way to remove task from self.task_queue so using existence in self.task_futures to indicate cancel.
-            del self.task_futures[task]
+        for task_id in task_ids:
+            if task_id in self.task_futures:
+                for task_future in self.task_futures[task_id].values():
+                    task_future.cancel()
+
+                # No way to remove task from self.task_queue so using existence in self.task_futures to indicate cancel.
+                del self.task_futures[task_id]
 
     async def on_start(self):
         """ Invoked before worker starts. Subclass should override if needed. """
