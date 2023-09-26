@@ -8,13 +8,14 @@ log = logging.getLogger(__name__)
 class Coworker(object):
     """ Generic worker to perform concurrent tasks using coroutine IO loop. """
 
-    def __init__(self, max_concurrency=10, sliding_window=True):
+    def __init__(self, max_concurrency=10, sliding_window=True, exit_when_idle=False):
         """
         Initialize worker
 
         :param int max_concurrency: How many tasks can be done at the same time. Defaults to 10.
         :param bool sliding_window: Start a task as soon as there is an available slot based on concurrency instead of
                                     waiting for all concurrent tasks to be completed first.
+        :param bool exit_when_idle: Exit worker when there are no more tasks to do
         """
 
         #: Queue for tasks to be performed
@@ -24,7 +25,7 @@ class Coworker(object):
         self.task_futures = {}
 
         #: Exit the worker when idle (all tasks are done / no more tasks queued)
-        self.exit_when_idle = False
+        self.exit_when_idle = exit_when_idle
 
         #: Current number of concurrent tasks being performed
         self.concurrency = 0
