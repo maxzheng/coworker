@@ -27,7 +27,7 @@ class SleepyWorker(Coworker):
         try:
             await asyncio.sleep(1000)
 
-        except Exception as e:
+        except BaseException as e:
             SleepyWorker.sleeping = False
             print("Woked up by", repr(e))
             raise
@@ -245,7 +245,7 @@ async def test_performance(sliding_window):
 
     start_time = time()
 
-    await worker.start(list(range(35000)))
+    await worker.start(list(range(40000)))
 
     total_time = time() - start_time
 
