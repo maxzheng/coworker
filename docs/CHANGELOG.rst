@@ -1,5 +1,12 @@
-Version 1.0.1
+Version 1.0.2
 ================================================================================
+
+* Use task id to avoid problems with unhashable data for keys
+* Increase time threshold for performance test as Github test node is slower
+* Update pythonpackage.yml
+
+Version 1.0.1
+--------------------------------------------------------------------------------
 
 * Update setup
 
