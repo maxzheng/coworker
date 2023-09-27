@@ -1,10 +1,9 @@
 import asyncio
 from time import time
 
-from coworker import Coworker
-
 import pytest
-from utils import async_test
+
+from coworker import Coworker
 
 
 class SquareWorker(Coworker):
@@ -52,7 +51,6 @@ class OnWorker(Coworker):
         self.on_finish_task_called += 1
 
 
-@async_test
 async def test_cancel():
     worker = SleepyWorker()
     asyncio.ensure_future(worker.start())
@@ -71,9 +69,9 @@ async def test_cancel():
     assert SleepyWorker.sleeping is False
 
     await worker.stop()
+    assert worker.is_finished
 
 
-@async_test
 async def test_should_exit():
     # No tasks
     worker = Coworker()
@@ -90,9 +88,9 @@ async def test_should_exit():
     # Tasks done
     await worker.start()
     assert worker.should_exit
+    assert worker.is_finished
 
 
-@async_test
 async def test_start_tasks2():
     task_futures = await SquareWorker().start([1, 2, 3])
     responses = [f.result() for f in task_futures]
@@ -100,7 +98,6 @@ async def test_start_tasks2():
     assert responses == [1, 4, 9]
 
 
-@async_test
 async def test_add_tasks():
     worker = SquareWorker()
     asyncio.ensure_future(worker.start())  # Generally, add_tasks is used with a worker in the background.
@@ -118,7 +115,6 @@ async def test_add_tasks():
     assert worker.is_finished
 
 
-@async_test
 async def test_concurrency_with_window():
     worker = ConcurrentWorker(sliding_window=True)
     worker.exit_when_idle = True
@@ -159,9 +155,9 @@ async def test_concurrency_with_window():
     assert worker.concurrency == 0
     assert worker.task_queue.qsize() == 0
     assert len(worker.task_futures) == 0
+    assert worker.is_finished
 
 
-@async_test
 async def test_concurrency_without_window():
     worker = ConcurrentWorker(sliding_window=False)
     worker.exit_when_idle = True
@@ -215,9 +211,9 @@ async def test_concurrency_without_window():
     assert worker.concurrency == 0
     assert worker.task_queue.qsize() == 0
     assert len(worker.task_futures) == 0
+    assert worker.is_finished
 
 
-@async_test
 async def test_on_events():
     worker = OnWorker()
     await worker.start(list(range(5)))
@@ -226,18 +222,26 @@ async def test_on_events():
     assert worker.on_finish_called == 1
     assert worker.on_start_task_called == 5
     assert worker.on_finish_task_called == 5
+    assert worker.is_finished
 
 
-@async_test
 async def test_start_tasks():
     worker = SquareWorker()
     task_futures = await worker.start([1, 2, 3])
     results = await asyncio.gather(*task_futures)
 
     assert results == [1, 4, 9]
+    assert worker.is_finished
 
 
-@async_test
+async def test_auto_start_tasks():
+    worker = SquareWorker(auto_start=True)
+    results = await asyncio.gather(*worker.add_tasks([1, 2, 3]))
+
+    assert results == [1, 4, 9]
+    assert worker.is_finished
+
+
 @pytest.mark.parametrize('sliding_window', [True, False])
 async def test_performance(sliding_window):
     worker = SquareWorker(sliding_window=sliding_window)
@@ -250,3 +254,4 @@ async def test_performance(sliding_window):
     total_time = time() - start_time
 
     assert 0.5 < total_time < 1.5
+    assert worker.is_finished

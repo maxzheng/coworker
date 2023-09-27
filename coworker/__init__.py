@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 class Coworker(object):
     """ Generic worker to perform concurrent tasks using coroutine IO loop. """
 
-    def __init__(self, max_concurrency=10, sliding_window=True, exit_when_idle=False):
+    def __init__(self, max_concurrency=10, sliding_window=True, exit_when_idle=False, auto_start=False):
         """
         Initialize worker
 
@@ -16,6 +16,7 @@ class Coworker(object):
         :param bool sliding_window: Start a task as soon as there is an available slot based on concurrency instead of
                                     waiting for all concurrent tasks to be completed first.
         :param bool exit_when_idle: Exit worker when there are no more tasks to do
+        :param bool auto_start: Automatically start the worker when tasks are added. Implies exit_when_idle.
         """
 
         #: Queue for tasks to be performed
@@ -25,7 +26,7 @@ class Coworker(object):
         self.task_futures = {}
 
         #: Exit the worker when idle (all tasks are done / no more tasks queued)
-        self.exit_when_idle = exit_when_idle
+        self.exit_when_idle = exit_when_idle or auto_start
 
         #: Current number of concurrent tasks being performed
         self.concurrency = 0
@@ -37,7 +38,10 @@ class Coworker(object):
         self._check_task_future = asyncio.Future()
 
         #: Is this worker finished?
-        self.is_finished = False
+        self.is_finished = True
+
+        #: Automatically start the worker when tasks are added
+        self.auto_start = auto_start
 
         #: Start a task as soon as there is an available slot based on concurrency instead of waiting until
         #: all concurrent tasks are done.
@@ -64,6 +68,8 @@ class Coworker(object):
                            are done. If that's not desired, use :meth:`self.add_task` instead.
         :return: List of futures for each task in the same order.
         """
+        if not self.is_finished:
+            return
         self.is_finished = False
 
         task_futures = []
@@ -190,6 +196,9 @@ class Coworker(object):
                 self.task_queue.put_nowait(task)
 
         self._check_tasks()
+
+        if self.auto_start and self.is_finished:
+            asyncio.ensure_future(self.start())
 
         if is_list:
             return task_futures
