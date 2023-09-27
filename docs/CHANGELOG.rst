@@ -1,5 +1,12 @@
-Version 1.0.3
+Version 1.0.4
 ================================================================================
+
+* Update readme
+* Add auto_start option
+* Update pythonpackage.yml
+
+Version 1.0.3
+--------------------------------------------------------------------------------
 
 * Add exit_when_idle as constructor param
 
