@@ -6,7 +6,7 @@ Generic worker that performs concurrent tasks using coroutine.
 Quick Start Tutorial
 ====================
 
-Define how a task is performed -- takes a single input and optionally returns a result:
+Define how a task is performed -- `do_task` takes a single input and optionally returns a result:
 
 .. code-block:: python
 
@@ -16,7 +16,7 @@ Define how a task is performed -- takes a single input and optionally returns a 
         async def do_task(self, task):  # Task can be anything, such as a tuple with a callable and args.
             return task * task
 
-To run in the background forever and add tasks:
+Now let's do some work:
 
 .. code-block:: python
 
