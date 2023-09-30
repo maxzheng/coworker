@@ -50,8 +50,6 @@ Besides `max_concurrency`, you can also pass the following params to Coworker:
 Links & Contact Info
 ====================
 
-| Documentation: http://coworker.readthedocs.org
-|
 | PyPI Package: https://pypi.python.org/pypi/coworker
 | GitHub Source: https://github.com/maxzheng/coworker
 | Report Issues/Bugs: https://github.com/maxzheng/coworker/issues
