@@ -104,7 +104,7 @@ async def test_cancel():
     await asyncio.sleep(0.1)
 
     assert SleepyWorker.sleeping is False
-    with pytest.raises(asyncio.exceptions.CancelledError):
+    with pytest.raises(asyncio.CancelledError):
         await result
 
     await worker.stop()
