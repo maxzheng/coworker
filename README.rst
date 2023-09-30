@@ -23,34 +23,29 @@ To run in the background forever and add tasks:
     import asyncio
 
     async def background_worker_example():
-        worker = SquareWorker(max_concurrency=5,    # Only 5 tasks will run concurrently
-                              auto_start=True)      # Automatically start worker in the background after adding tasks
-                                                    # and exits too when done.
+        worker = SquareWorker(max_concurrency=5)    # Only 5 tasks will run concurrently. Defalts to 10
+
+        # Single task
+        result = await worker.do(2)
+        print(result)   # result = 4
 
         # Mulitiple tasks -- get all results after everything is done
         tasks = list(range(100))
-        results = await asyncio.gather(*worker.add_tasks(tasks))
+        results = await worker.do(tasks)
         print(results)  # results = [0, 1, 4, 9, ...]
 
         # Mulitiple tasks -- get first completed
         tasks = list(range(10))
-        for task in asyncio.as_completed(worker.add_tasks(tasks)):
-            print(await task)  # results = 0, 1, 4, 9, ...
-
-        # Single task
-        result = await worker.add_tasks(2)
-        print(result)   # result = 4
+        for result in worker.do(tasks, as_iterator=True):
+            print(await result)  # results = 0, 1, 4, 9, ...
 
     # Run async usage example
     asyncio.run(background_worker_example())
 
-To run for a list of tasks and stop worker when finished:
+Besides `max_concurrency`, you can also pass the following params to Coworker:
 
-.. code-block:: python
-
-    task_futures = asyncio.run(SquareWorker().start([1, 2, 3]))
-    print([t.result() for t in task_futures])   # [1, 4, 9]
-
+* `sliding_window` to use sliding window or tumbling window when processing the tasks concurrently. Defaults to True.
+* `do_task` for a callable to do the task instead of having to sub-class. E.g. Coworker(do_task=lamdba x: x * x)
 
 Links & Contact Info
 ====================
